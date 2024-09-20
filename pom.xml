@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Basic Project Information -->
+    <groupId>com.raw-labs</groupId>
+    <artifactId>das-sdk-java</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>das-sdk-java</name>
+    <url>https://www.raw-labs.com/</url>
+    <description>RAW Labs DAS SDK Java Library</description>
+    <organization>
+        <name>RAW Labs SA</name>
+        <url>https://www.raw-labs.com/</url>
+    </organization>
+
+    <repositories>
+        <repository>
+            <id>protocol-das</id>
+            <url>https://maven.pkg.github.com/raw-labs/protocol-das</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <!-- Dependencies -->
+    <dependencies>
+        <dependency>
+            <groupId>com.raw-labs</groupId>
+            <artifactId>utils-core_${scala.version}</artifactId>
+            <version>${protocol-raw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.raw-labs</groupId>
+            <artifactId>protocol-das_${scala.version}</artifactId>
+            <version>${protocol-das.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.raw-labs</groupId>
+            <artifactId>protocol-raw_${scala.version}</artifactId>
+            <version>${protocol-raw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.raw-labs</groupId>
+            <artifactId>das-sdk-scala_${scala.version}</artifactId>
+            <version>${das-sdk-das.version}</version>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <!-- Distribution Management -->
+    <distributionManagement>
+        <repository>
+            <id>das-sdk-java</id>
+            <name>GitHub raw-labs Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/raw-labs/das-sdk-java</url>
+        </repository>
+    </distributionManagement>
+
+    <!-- Properties -->
+    <properties>
+        <!-- Java Version -->
+        <maven.compiler.source>22</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
+        <!-- Encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Versions-->
+        <!-- Maven Plugins -->
+        <!--        <maven-java-doc-plugin.version>3.5.0</maven-java-doc-plugin.version>-->
+        <!--        <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>-->
+        <!--        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>-->
+        <!--        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>-->
+
+        <!-- Dependencies -->
+        <protocol-raw.version>0.39.0</protocol-raw.version>
+        <utils-core.version>0.39.0</utils-core.version>
+        <protocol-das.version>0.1.0</protocol-das.version>
+        <das-sdk-das.version>0.1.0</das-sdk-das.version>
+
+        <!-- Test Dependencies -->
+        <junit-jupiter.version>5.11.0</junit-jupiter.version>
+
+
+        <!-- Scala Version -->
+        <scala.version>2.12</scala.version>
+    </properties>
+
+
+</project>
