@@ -1,4 +1,4 @@
-package com.rawlabs.das.sdk.test.mock;
+package com.rawlabs.das.sdk.java.test.mock;
 
 import com.rawlabs.das.sdk.java.DASExecuteResult;
 import com.rawlabs.das.sdk.java.DASTable;

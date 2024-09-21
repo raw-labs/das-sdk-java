@@ -3,9 +3,7 @@ module das.sdk.java {
 
     exports com.rawlabs.das.sdk.java;
     exports com.rawlabs.das.sdk.java.exceptions;
-    exports com.rawlabs.das.sdk.adapter to
-            das.sdk.scala,
-            das.sdk.java.test;
+    exports com.rawlabs.das.sdk.adapter;
 
     requires das.sdk.scala;
     requires protocol.das;

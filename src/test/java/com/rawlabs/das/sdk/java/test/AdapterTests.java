@@ -1,4 +1,4 @@
-package com.rawlabs.das.sdk.test;
+package com.rawlabs.das.sdk.java.test;
 
 import com.rawlabs.das.sdk.*;
 import com.rawlabs.das.sdk.java.exceptions.DASSdkUnsupportedException;

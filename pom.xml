@@ -31,6 +31,15 @@
 
     <!-- Dependencies -->
     <dependencies>
+
+        <!-- Maven Plugins -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven-compiler-plugin.version}</version>
+        </dependency>
+
+        <!-- RAW Labs Dependencies -->
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>utils-core_${scala.version}</artifactId>
@@ -87,10 +96,7 @@
 
         <!-- Versions-->
         <!-- Maven Plugins -->
-        <!--        <maven-java-doc-plugin.version>3.5.0</maven-java-doc-plugin.version>-->
-        <!--        <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>-->
-        <!--        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>-->
-        <!--        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>-->
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
 
         <!-- Dependencies -->
         <protocol-raw.version>0.39.0</protocol-raw.version>
