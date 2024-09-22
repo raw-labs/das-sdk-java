@@ -29,9 +29,7 @@
         </plugins>
     </build>
 
-    <!-- Dependencies -->
     <dependencies>
-
         <!-- Maven Plugins -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -59,6 +57,7 @@
             <groupId>com.raw-labs</groupId>
             <artifactId>das-sdk-scala_${scala.version}</artifactId>
             <version>${das-sdk-das.version}</version>
+            <optional>true</optional>
         </dependency>
 
         <!-- Test Dependencies -->

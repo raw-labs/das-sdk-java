@@ -6,6 +6,7 @@ import com.rawlabs.protocol.das.Row;
 import com.rawlabs.protocol.das.SortKey;
 import com.rawlabs.protocol.raw.Value;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface DASTable {
@@ -101,7 +102,11 @@ public interface DASTable {
   }
 
   default List<String> explain(
-      List<Qual> quals, List<String> columns, List<SortKey> sortKeys, Long limit, boolean verbose) {
+      List<Qual> quals,
+      List<String> columns,
+      @Nullable List<SortKey> sortKeys,
+      @Nullable Long limit,
+      boolean verbose) {
     return List.of();
   }
 
@@ -132,7 +137,10 @@ public interface DASTable {
    * @return result of the execution
    */
   DASExecuteResult execute(
-      List<Qual> quals, List<String> columns, List<SortKey> sortKeys, Long limit);
+      List<Qual> quals,
+      List<String> columns,
+      @Nullable List<SortKey> sortKeys,
+      @Nullable Long limit);
 
   default String getUniqueColumn() {
     throw new DASSdkUnsupportedException();
