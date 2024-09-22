@@ -1,4 +1,4 @@
-package com.rawlabs.das.sdk.java.test.mock;
+package com.rawlabs.das.sdk.adapter.mock;
 
 import com.rawlabs.das.sdk.java.DASSdk;
 import com.rawlabs.das.sdk.java.DASSdkBuilder;

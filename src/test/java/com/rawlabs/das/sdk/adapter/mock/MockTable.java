@@ -1,4 +1,4 @@
-package com.rawlabs.das.sdk.java.test.mock;
+package com.rawlabs.das.sdk.adapter.mock;
 
 import com.rawlabs.das.sdk.java.DASExecuteResult;
 import com.rawlabs.das.sdk.java.DASTable;
@@ -26,7 +26,7 @@ public class MockTable implements DASTable {
     return new DASExecuteResult() {
 
       @Override
-      public void close() throws IOException {}
+      public void close() {}
 
       @Override
       public boolean hasNext() {
