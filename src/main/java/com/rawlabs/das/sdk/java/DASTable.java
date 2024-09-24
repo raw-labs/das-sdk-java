@@ -86,7 +86,7 @@ public interface DASTable {
    * Filter: (id = local_table.id) │
    * └───────────────────────────────────────────────────────────────────────┘
    *
-   * <p>Returns: A list of tuples of the form: (key_columns, expected_rows), where key_columns is a
+   * <p>Returns a list of tuples of the form: (key_columns, expected_rows), where key_columns is a
    * tuple containing the columns on which the path can be used, and expected_rows is the number of
    * rows this path might return for a simple lookup. For example, the return value corresponding to
    * the previous scenario would be::
