@@ -105,7 +105,12 @@ public class TypeFactory {
 
   public static Type createListType(Type innerType, boolean triable, boolean nullable) {
     return Type.newBuilder()
-        .setList(ListType.newBuilder().setTriable(triable).setNullable(nullable).build())
+        .setList(
+            ListType.newBuilder()
+                .setTriable(triable)
+                .setInnerType(innerType)
+                .setNullable(nullable)
+                .build())
         .build();
   }
 

@@ -2,7 +2,6 @@ package com.rawlabs.das.sdk.java.utils;
 
 import com.google.protobuf.ByteString;
 import com.rawlabs.das.sdk.java.exceptions.DASSdkException;
-import com.rawlabs.das.sdk.java.exceptions.DASSdkUnsupportedException;
 import com.rawlabs.protocol.raw.*;
 
 import java.time.LocalDate;
