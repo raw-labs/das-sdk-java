@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 // TODO (AZ) test this
 public class ValueFactory {
@@ -40,8 +42,21 @@ public class ValueFactory {
     };
   }
 
+  protected Value createNull() {
+    return Value.newBuilder().setNull(ValueNull.newBuilder().build()).build();
+  }
+
+  private Value withNullCheck(Object nullable, Supplier<Value> build) {
+    if (nullable == null) {
+      return createNull();
+    }
+    return build.get();
+  }
+
   protected Value createString(String string) {
-    return Value.newBuilder().setString(ValueString.newBuilder().setV(string).build()).build();
+    return withNullCheck(
+        string,
+        () -> Value.newBuilder().setString(ValueString.newBuilder().setV(string).build()).build());
   }
 
   protected Value createBool(boolean bool) {
@@ -73,20 +88,32 @@ public class ValueFactory {
   }
 
   protected Value createDecimal(String decimalValue) {
-    return Value.newBuilder()
-        .setDecimal(ValueDecimal.newBuilder().setV(decimalValue).build())
-        .build();
+    return withNullCheck(
+        decimalValue,
+        () ->
+            Value.newBuilder()
+                .setDecimal(ValueDecimal.newBuilder().setV(decimalValue).build())
+                .build());
   }
 
   protected Value createBinary(byte[] binaryValue) {
-    return Value.newBuilder()
-        .setBinary(ValueBinary.newBuilder().setV(ByteString.copyFrom(binaryValue)).build())
-        .build();
+    return withNullCheck(
+        binaryValue,
+        () ->
+            Value.newBuilder()
+                .setBinary(ValueBinary.newBuilder().setV(ByteString.copyFrom(binaryValue)).build())
+                .build());
   }
 
   protected Value createList(List<Object> list, Type type) {
-    List<Value> listOfValues = list.stream().map(o -> createValue(o, type)).toList();
-    return Value.newBuilder().setList(ValueList.newBuilder().addAllValues(listOfValues)).build();
+    return withNullCheck(
+        list,
+        () -> {
+          List<Value> listOfValues = list.stream().map(o -> createValue(o, type)).toList();
+          return Value.newBuilder()
+              .setList(ValueList.newBuilder().addAllValues(listOfValues))
+              .build();
+        });
   }
 
   protected Value createAny(Object obj) {
