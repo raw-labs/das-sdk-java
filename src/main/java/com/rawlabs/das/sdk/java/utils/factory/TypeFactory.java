@@ -1,4 +1,4 @@
-package com.rawlabs.das.sdk.java.utils;
+package com.rawlabs.das.sdk.java.utils.factory;
 
 import com.rawlabs.protocol.raw.*;
 

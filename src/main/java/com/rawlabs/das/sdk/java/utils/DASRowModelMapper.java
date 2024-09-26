@@ -10,15 +10,15 @@ import java.util.List;
 
 public abstract class DASRowModelMapper {
 
-  private final BiMap<String, String> transformations;
-  private final TableDefinition tableDefinition;
+  protected final BiMap<String, String> transformations;
+  protected final TableDefinition tableDefinition;
 
   public DASRowModelMapper(BiMap<String, String> transformations, TableDefinition tableDefinition) {
     this.transformations = transformations;
     this.tableDefinition = tableDefinition;
   }
 
-  Row toRow(Object model) {
+  public Row toRow(Object model) {
     Row.Builder rowBuilder = Row.newBuilder();
     List<ColumnDefinition> columns = tableDefinition.getColumnsList();
     for (ColumnDefinition column : columns) {
@@ -28,15 +28,15 @@ public abstract class DASRowModelMapper {
     return rowBuilder.build();
   }
 
-  private String withTransformation(String fieldName) {
+  protected String withTransformation(String fieldName) {
     return transformations.getOrDefault(fieldName, fieldName);
   }
 
-  private String withTransformationInverse(String fieldName) {
+  protected String withTransformationInverse(String fieldName) {
     return transformations.inverse().getOrDefault(fieldName, fieldName);
   }
 
-  protected abstract Object toModel(Row row);
+  public abstract Object toModel(Row row);
 
   protected abstract Value getValue(ColumnDefinition column, Object obj);
 }
