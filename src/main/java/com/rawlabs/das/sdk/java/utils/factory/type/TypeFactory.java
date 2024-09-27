@@ -1,8 +1,8 @@
-package com.rawlabs.das.sdk.java.utils.factory;
+package com.rawlabs.das.sdk.java.utils.factory.type;
 
 import com.rawlabs.protocol.raw.*;
 
-public class TypeFactory {
+public final class TypeFactory {
   public static Type createStringType(boolean triable, boolean nullable) {
     return Type.newBuilder()
         .setString(StringType.newBuilder().setTriable(triable).setNullable(nullable).build())

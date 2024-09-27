@@ -1,21 +1,13 @@
-package com.rawlabs.das.sdk.java.utils.factory;
+package com.rawlabs.das.sdk.java.utils.factory.value;
 
 import com.rawlabs.protocol.raw.Value;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExtractValueFactory {
+public abstract class ExtractValueFactory {
 
-  private static final ExtractValueFactory instance = new ExtractValueFactory();
-
-  public static ExtractValueFactory getInstance() {
-    return instance;
-  }
-
-  protected ExtractValueFactory() {}
-
-  public Object extractValue(Value value) {
+  public final Object extractValue(Value value) {
     return switch (value) {
       case Value v when v.hasNull() -> null;
       case Value v when v.hasString() -> v.getString().getV();
@@ -38,6 +30,15 @@ public class ExtractValueFactory {
     };
   }
 
+  protected Object getList(Value v) {
+    List<Value> list = v.getList().getValuesList();
+    List<Object> result = new ArrayList<>(list.size());
+    for (Value value : list) {
+      result.add(extractValue(value));
+    }
+    return result;
+  }
+
   protected Object getDate(Value v) {
     throw new UnsupportedOperationException("Not implemented yet");
   }
@@ -56,14 +57,5 @@ public class ExtractValueFactory {
 
   protected Object getRecord(Value v) {
     throw new UnsupportedOperationException("Not implemented yet");
-  }
-
-  protected Object getList(Value v) {
-    List<Value> list = v.getList().getValuesList();
-    List<Object> result = new ArrayList<>(list.size());
-    for (Value value : list) {
-      result.add(extractValue(value));
-    }
-    return result;
   }
 }

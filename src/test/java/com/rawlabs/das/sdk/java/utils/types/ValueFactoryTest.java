@@ -1,14 +1,15 @@
 package com.rawlabs.das.sdk.java.utils.types;
 
-import com.rawlabs.das.sdk.java.utils.factory.ValueFactory;
+import com.rawlabs.das.sdk.java.utils.factory.value.DefaultValueFactory;
+import com.rawlabs.das.sdk.java.utils.factory.value.ValueFactory;
 import com.rawlabs.protocol.raw.Value;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.rawlabs.das.sdk.java.utils.factory.TypeFactory.createListType;
-import static com.rawlabs.das.sdk.java.utils.factory.TypeFactory.createStringType;
+import static com.rawlabs.das.sdk.java.utils.factory.type.TypeFactory.createListType;
+import static com.rawlabs.das.sdk.java.utils.factory.type.TypeFactory.createStringType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,14 +19,16 @@ public class ValueFactoryTest {
   @Test
   @DisplayName("Test create string value")
   void testCreateStringValue() {
-    Value v = ValueFactory.getInstance().createValue("test", createStringType());
+    ValueFactory factory = new DefaultValueFactory();
+    Value v = factory.createValue("test", createStringType());
     assertEquals("test", v.getString().getV());
   }
 
   @Test
   @DisplayName("Test create null value")
   void testCreateNullValue() {
-    Value v = ValueFactory.getInstance().createValue(null, createStringType());
+    ValueFactory factory = new DefaultValueFactory();
+    Value v = factory.createValue(null, createStringType());
     assertTrue(v.hasNull());
   }
 
@@ -33,9 +36,8 @@ public class ValueFactoryTest {
   @DisplayName("Test create list value")
   void testCreateListValue() {
     List<List<String>> list = List.of(List.of("a", "b", "c"));
-    Value v =
-        ValueFactory.getInstance()
-            .createValue(list, createListType(createListType(createStringType())));
+    ValueFactory factory = new DefaultValueFactory();
+    Value v = factory.createValue(list, createListType(createListType(createStringType())));
     assertTrue(v.hasList());
     assertEquals(1, v.getList().getValuesCount());
     assertEquals(3, v.getList().getValues(0).getList().getValuesCount());

@@ -1,9 +1,9 @@
-package com.rawlabs.das.sdk.java.utils.factory;
+package com.rawlabs.das.sdk.java.utils.factory.qual;
 
 import com.rawlabs.protocol.das.*;
 import com.rawlabs.protocol.raw.Value;
 
-public class QualFactory {
+public final class QualFactory {
   public static Qual createEq(Value v, String fieldName) {
     return Qual.newBuilder()
         .setSimpleQual(

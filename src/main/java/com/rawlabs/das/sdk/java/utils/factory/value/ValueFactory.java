@@ -1,4 +1,4 @@
-package com.rawlabs.das.sdk.java.utils.factory;
+package com.rawlabs.das.sdk.java.utils.factory.value;
 
 import com.google.protobuf.ByteString;
 import com.rawlabs.das.sdk.java.exceptions.DASSdkException;
@@ -11,18 +11,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 // TODO (AZ) test this
-public class ValueFactory {
-
-  private static final ValueFactory instance = new ValueFactory();
-
-  public static ValueFactory getInstance() {
-    return instance;
-  }
-
-  protected ValueFactory() {}
+public abstract class ValueFactory {
 
   @SuppressWarnings("unchecked")
-  public Value createValue(Object obj, Type type) {
+  public final Value createValue(Object obj, Type type) {
     return switch (type) {
       case Type t when t.hasString() ->
           withNullCheck(obj, t.getString().getNullable(), () -> this.createString((String) obj));
@@ -72,7 +64,7 @@ public class ValueFactory {
     };
   }
 
-  protected Value withNullCheck(Object obj, boolean isNullable, Supplier<Value> supplier) {
+  private Value withNullCheck(Object obj, boolean isNullable, Supplier<Value> supplier) {
     if (obj == null && !isNullable) {
       throw new IllegalArgumentException("non nullable value is null");
     }
