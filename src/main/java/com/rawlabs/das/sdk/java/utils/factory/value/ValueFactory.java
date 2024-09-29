@@ -7,6 +7,7 @@ import com.rawlabs.protocol.raw.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -38,12 +39,12 @@ public abstract class ValueFactory {
           withNullCheck(obj, t.getBinary().getNullable(), () -> this.createBinary((byte[]) obj));
       case Type t when t.hasAny() -> withNullCheck(obj, true, () -> this.createAny(obj));
       case Type t when t.hasDate() ->
-          withNullCheck(obj, t.getDate().getNullable(), () -> this.createDate((LocalDate) obj));
+          withNullCheck(obj, t.getDate().getNullable(), () -> this.createDate((String) obj));
       case Type t when t.hasTime() ->
-          withNullCheck(obj, t.getTime().getNullable(), () -> this.createTime((LocalTime) obj));
+          withNullCheck(obj, t.getTime().getNullable(), () -> this.createTime((String) obj));
       case Type t when t.hasTimestamp() ->
           withNullCheck(
-              obj, t.getTimestamp().getNullable(), () -> this.createTimestamp((LocalDateTime) obj));
+              obj, t.getTimestamp().getNullable(), () -> this.createTimestamp((String) obj));
       case Type t when t.hasInterval() ->
           withNullCheck(obj, t.getInterval().getNullable(), () -> this.createInterval(obj));
       case Type t when t.hasIterable() ->
@@ -127,16 +128,45 @@ public abstract class ValueFactory {
     throw new DASSdkException("Any type is not implemented yet");
   }
 
-  protected Value createDate(LocalDate date) {
-    throw new DASSdkException("Date type is not implemented yet");
+  protected Value createDate(String date) {
+    OffsetDateTime dateTime = OffsetDateTime.parse(date);
+    return Value.newBuilder()
+        .setDate(
+            ValueDate.newBuilder()
+                .setDay(dateTime.getDayOfMonth())
+                .setMonth(dateTime.getMonthValue())
+                .setYear(dateTime.getYear())
+                .build())
+        .build();
   }
 
-  protected Value createTime(LocalTime time) {
-    throw new DASSdkException("Time type is not implemented yet");
+  protected Value createTime(String time) {
+    OffsetDateTime dateTime = OffsetDateTime.parse(time);
+    return Value.newBuilder()
+        .setTime(
+            ValueTime.newBuilder()
+                .setHour(dateTime.getHour())
+                .setMinute(dateTime.getMinute())
+                .setSecond(dateTime.getSecond())
+                .setNano(dateTime.getNano())
+                .build())
+        .build();
   }
 
-  protected Value createTimestamp(LocalDateTime timestamp) {
-    throw new DASSdkException("Timestamp type is not implemented yet");
+  protected Value createTimestamp(String timestamp) {
+    OffsetDateTime dateTime = OffsetDateTime.parse(timestamp);
+    return Value.newBuilder()
+        .setTimestamp(
+            ValueTimestamp.newBuilder()
+                .setDay(dateTime.getDayOfMonth())
+                .setMonth(dateTime.getMonthValue())
+                .setYear(dateTime.getYear())
+                .setHour(dateTime.getHour())
+                .setMinute(dateTime.getMinute())
+                .setSecond(dateTime.getSecond())
+                .setNano(dateTime.getNano())
+                .build())
+        .build();
   }
 
   protected Value createInterval(Object interval) {
