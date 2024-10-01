@@ -4,64 +4,117 @@ import com.google.protobuf.ByteString;
 import com.rawlabs.das.sdk.java.exceptions.DASSdkException;
 import com.rawlabs.protocol.raw.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 // TODO (AZ) test this
 public abstract class ValueFactory {
 
   @SuppressWarnings("unchecked")
-  public final Value createValue(Object obj, Type type) {
-    return switch (type) {
+  public final Value createValue(ValueTypeTuple valueTypeTuple) {
+    return switch (valueTypeTuple.type()) {
       case Type t when t.hasString() ->
-          withNullCheck(obj, t.getString().getNullable(), () -> this.createString((String) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getString().getNullable(),
+              () -> this.createString((String) valueTypeTuple.value()));
       case Type t when t.hasBool() ->
-          withNullCheck(obj, t.getBool().getNullable(), () -> this.createBool((boolean) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getBool().getNullable(),
+              () -> this.createBool((boolean) valueTypeTuple.value()));
       case Type t when t.hasByte() ->
-          withNullCheck(obj, t.getByte().getNullable(), () -> this.createByte((byte) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getByte().getNullable(),
+              () -> this.createByte((byte) valueTypeTuple.value()));
       case Type t when t.hasShort() ->
-          withNullCheck(obj, t.getShort().getNullable(), () -> this.createShort((short) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getShort().getNullable(),
+              () -> this.createShort((short) valueTypeTuple.value()));
       case Type t when t.hasInt() ->
-          withNullCheck(obj, t.getInt().getNullable(), () -> this.createInt((int) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getInt().getNullable(),
+              () -> this.createInt((int) valueTypeTuple.value()));
       case Type t when t.hasLong() ->
-          withNullCheck(obj, t.getLong().getNullable(), () -> this.createLong((long) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getLong().getNullable(),
+              () -> this.createLong((long) valueTypeTuple.value()));
       case Type t when t.hasFloat() ->
-          withNullCheck(obj, t.getFloat().getNullable(), () -> this.createFloat((float) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getFloat().getNullable(),
+              () -> this.createFloat((float) valueTypeTuple.value()));
       case Type t when t.hasDouble() ->
-          withNullCheck(obj, t.getDouble().getNullable(), () -> this.createDouble((double) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getDouble().getNullable(),
+              () -> this.createDouble((double) valueTypeTuple.value()));
       case Type t when t.hasDecimal() ->
-          withNullCheck(obj, t.getDecimal().getNullable(), () -> this.createDecimal((String) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getDecimal().getNullable(),
+              () -> this.createDecimal((String) valueTypeTuple.value()));
       case Type t when t.hasBinary() ->
-          withNullCheck(obj, t.getBinary().getNullable(), () -> this.createBinary((byte[]) obj));
-      case Type t when t.hasAny() -> withNullCheck(obj, true, () -> this.createAny(obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getBinary().getNullable(),
+              () -> this.createBinary((byte[]) valueTypeTuple.value()));
+      case Type t when t.hasAny() ->
+          withNullCheck(valueTypeTuple.value(), true, () -> this.createAny(valueTypeTuple.value()));
       case Type t when t.hasDate() ->
-          withNullCheck(obj, t.getDate().getNullable(), () -> this.createDate((String) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getDate().getNullable(),
+              () -> this.createDate((String) valueTypeTuple.value()));
       case Type t when t.hasTime() ->
-          withNullCheck(obj, t.getTime().getNullable(), () -> this.createTime((String) obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getTime().getNullable(),
+              () -> this.createTime((String) valueTypeTuple.value()));
       case Type t when t.hasTimestamp() ->
           withNullCheck(
-              obj, t.getTimestamp().getNullable(), () -> this.createTimestamp((String) obj));
+              valueTypeTuple.value(),
+              t.getTimestamp().getNullable(),
+              () -> this.createTimestamp((String) valueTypeTuple.value()));
       case Type t when t.hasInterval() ->
-          withNullCheck(obj, t.getInterval().getNullable(), () -> this.createInterval(obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getInterval().getNullable(),
+              () -> this.createInterval(valueTypeTuple.value()));
       case Type t when t.hasIterable() ->
-          withNullCheck(obj, t.getIterable().getNullable(), () -> this.createIterable(obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getIterable().getNullable(),
+              () -> this.createIterable(valueTypeTuple.value()));
       case Type t when t.hasOr() ->
-          withNullCheck(obj, t.getOr().getNullable(), () -> this.createOr(obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getOr().getNullable(),
+              () -> this.createOr(valueTypeTuple.value()));
       case Type t when t.hasRecord() ->
-          withNullCheck(obj, t.getRecord().getNullable(), () -> this.createRecord(obj));
+          withNullCheck(
+              valueTypeTuple.value(),
+              t.getRecord().getNullable(),
+              () -> this.createRecord(valueTypeTuple.value()));
       case Type t when t.hasUndefined() ->
-          withNullCheck(obj, t.getUndefined().getNullable(), this::createUndefined);
+          withNullCheck(
+              valueTypeTuple.value(), t.getUndefined().getNullable(), this::createUndefined);
       case Type t when t.hasList() ->
           withNullCheck(
-              obj,
+              valueTypeTuple.value(),
               t.getList().getNullable(),
-              () -> this.createList((List<Object>) obj, t.getList().getInnerType()));
+              () ->
+                  this.createList(
+                      (List<Object>) valueTypeTuple.value(), t.getList().getInnerType()));
 
-      default -> throw new IllegalStateException("Unexpected value: " + type);
+      default -> throw new IllegalStateException("Unexpected value: " + valueTypeTuple.type());
     };
   }
 
@@ -120,7 +173,8 @@ public abstract class ValueFactory {
   }
 
   protected Value createList(List<Object> list, Type type) {
-    List<Value> listOfValues = list.stream().map(o -> createValue(o, type)).toList();
+    List<Value> listOfValues =
+        list.stream().map(o -> createValue(new ValueTypeTuple(o, type))).toList();
     return Value.newBuilder().setList(ValueList.newBuilder().addAllValues(listOfValues)).build();
   }
 
@@ -181,8 +235,18 @@ public abstract class ValueFactory {
     throw new DASSdkException("Or type is not implemented yet");
   }
 
-  protected Value createRecord(Object record) {
-    throw new DASSdkException("Record type is not implemented yet");
+  @SuppressWarnings("unchecked")
+  protected Value createRecord(Object value) {
+    Map<String, ValueTypeTuple> recordMap = (Map<String, ValueTypeTuple>) value;
+    ValueRecord.Builder rb = ValueRecord.newBuilder();
+    List<String> fieldNames = new ArrayList<>(recordMap.keySet());
+    for (int i = 0; i < recordMap.size(); i++) {
+      rb.addFields(
+          ValueRecordField.newBuilder()
+              .setName(fieldNames.get(i))
+              .setValue(createValue(recordMap.get(fieldNames.get(i)))));
+    }
+    return Value.newBuilder().setRecord(rb.build()).build();
   }
 
   protected Value createUndefined() {

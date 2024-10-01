@@ -2,6 +2,7 @@ package com.rawlabs.das.sdk.java.utils.types;
 
 import com.rawlabs.das.sdk.java.utils.factory.value.DefaultValueFactory;
 import com.rawlabs.das.sdk.java.utils.factory.value.ValueFactory;
+import com.rawlabs.das.sdk.java.utils.factory.value.ValueTypeTuple;
 import com.rawlabs.protocol.raw.Value;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ public class ValueFactoryTest {
   @DisplayName("Test create string value")
   void testCreateStringValue() {
     ValueFactory factory = new DefaultValueFactory();
-    Value v = factory.createValue("test", createStringType());
+    Value v = factory.createValue(new ValueTypeTuple("test", createStringType()));
     assertEquals("test", v.getString().getV());
   }
 
@@ -28,7 +29,7 @@ public class ValueFactoryTest {
   @DisplayName("Test create null value")
   void testCreateNullValue() {
     ValueFactory factory = new DefaultValueFactory();
-    Value v = factory.createValue(null, createStringType());
+    Value v = factory.createValue(new ValueTypeTuple(null, createStringType()));
     assertTrue(v.hasNull());
   }
 
@@ -37,7 +38,9 @@ public class ValueFactoryTest {
   void testCreateListValue() {
     List<List<String>> list = List.of(List.of("a", "b", "c"));
     ValueFactory factory = new DefaultValueFactory();
-    Value v = factory.createValue(list, createListType(createListType(createStringType())));
+    Value v =
+        factory.createValue(
+            new ValueTypeTuple(list, createListType(createListType(createStringType()))));
     assertTrue(v.hasList());
     assertEquals(1, v.getList().getValuesCount());
     assertEquals(3, v.getList().getValues(0).getList().getValuesCount());

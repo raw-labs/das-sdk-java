@@ -2,6 +2,8 @@ package com.rawlabs.das.sdk.java.utils.factory.type;
 
 import com.rawlabs.protocol.raw.*;
 
+import java.util.List;
+
 public final class TypeFactory {
   public static Type createStringType(boolean triable, boolean nullable) {
     return Type.newBuilder()
@@ -178,14 +180,18 @@ public final class TypeFactory {
     return createOrType(false, true);
   }
 
-  public static Type createRecordType(boolean triable, boolean nullable) {
-    return Type.newBuilder()
-        .setRecord(RecordType.newBuilder().setTriable(triable).setNullable(nullable).build())
-        .build();
+  public static Type createRecordType(boolean triable, boolean nullable, List<AttrType> atts) {
+    var recordTypeBuilder = RecordType.newBuilder().setTriable(triable).setNullable(nullable);
+    atts.forEach(recordTypeBuilder::addAtts);
+    return Type.newBuilder().setRecord(recordTypeBuilder.build()).build();
   }
 
-  public static Type createRecordType() {
-    return createRecordType(false, true);
+  public static Type createRecordType(List<AttrType> atts) {
+    return createRecordType(false, true, atts);
+  }
+
+  public static AttrType createAttType(String name, Type type) {
+    return AttrType.newBuilder().setIdn(name).setTipe(type).build();
   }
 
   public static Type createUndefinedType(boolean triable, boolean nullable) {
