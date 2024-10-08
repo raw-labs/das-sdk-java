@@ -1,21 +1,33 @@
 package com.rawlabs.das.sdk.java.utils.factory.value;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.protobuf.ByteString;
 import com.rawlabs.das.sdk.java.exceptions.DASSdkException;
+import com.rawlabs.das.sdk.java.exceptions.DASSdkUnsupportedException;
 import com.rawlabs.protocol.raw.*;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.rawlabs.das.sdk.java.utils.factory.type.ExtractTypeFactory.extractType;
+import static com.rawlabs.das.sdk.java.utils.factory.type.TypeFactory.*;
+import static com.rawlabs.das.sdk.java.utils.factory.type.TypeFactory.createDecimalType;
+
 // TODO (AZ) test this
 public abstract class ValueFactory {
+
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @SuppressWarnings("unchecked")
   public final Value createValue(ValueTypeTuple valueTypeTuple) {
@@ -71,7 +83,16 @@ public abstract class ValueFactory {
               t.getBinary().getNullable(),
               () -> this.createBinary((byte[]) valueTypeTuple.value()));
       case Type t when t.hasAny() ->
-          withNullCheck(valueTypeTuple.value(), true, () -> this.createAny(valueTypeTuple.value()));
+          withNullCheck(
+              valueTypeTuple.value(),
+              true,
+              () -> {
+                try {
+                  return this.createAny((String) valueTypeTuple.value());
+                } catch (IOException e) {
+                  throw new DASSdkUnsupportedException("Failed to parse json");
+                }
+              });
       case Type t when t.hasDate() ->
           withNullCheck(
               valueTypeTuple.value(),
@@ -170,38 +191,43 @@ public abstract class ValueFactory {
     return value instanceof List;
   }
 
-  public final Value createValue(Object object) {
-    return switch (object) {
-      case null -> Value.newBuilder().setNull(ValueNull.newBuilder().build()).build();
-      case String t when isDecimal(t) -> createDecimal(t);
-      case String t when isDate(t) -> createDate(t);
-      case String t when isTimestamp(t) -> createTimestamp(t);
-      case String t when isTime(t) -> createTime(t);
-      case String t when isInterval(t) -> createInterval(t);
-      case String t -> createString(t);
-      case Boolean t -> createBool(t);
-      case Byte t -> createByte(t);
-      case Short t -> createShort(t);
-      case Integer t -> createInt(t);
-      case Long t -> createLong(t);
-      case Float t -> createFloat(t);
-      case Double t -> createDouble(t);
-      case byte[] t -> createBinary(t);
-      case Object t when isRecord(t) -> createRecordWithoutType(t);
-      case Object t when isList(t) -> createList(t);
-
-      default -> throw new IllegalStateException("Unexpected value: " + object);
-    };
-  }
+  //
+  //  public final Value createValue(Object object) {
+  //    return switch (object) {
+  //      case null -> Value.newBuilder().setNull(ValueNull.newBuilder().build()).build();
+  //      case String t when isDecimal(t) -> createDecimal(t);
+  //      case String t when isDate(t) -> createDate(t);
+  //      case String t when isTimestamp(t) -> createTimestamp(t);
+  //      case String t when isTime(t) -> createTime(t);
+  //      case String t when isInterval(t) -> createInterval(t);
+  //      case String t -> createString(t);
+  //      case Boolean t -> createBool(t);
+  //      case Byte t -> createByte(t);
+  //      case Short t -> createShort(t);
+  //      case Integer t -> createInt(t);
+  //      case Long t -> createLong(t);
+  //      case Float t -> createFloat(t);
+  //      case Double t -> createDouble(t);
+  //      case byte[] t -> createBinary(t);
+  //      case Object t when isRecord(t) -> createRecordWithoutType(t);
+  //      case Object t when isList(t) -> createList(t);
+  //
+  //      default -> throw new IllegalStateException("Unexpected value: " + object);
+  //    };
+  //  }
 
   private Value withNullCheck(Object obj, boolean isNullable, Supplier<Value> supplier) {
     if (obj == null && !isNullable) {
       throw new IllegalArgumentException("non nullable value is null");
     }
     if (obj == null) {
-      return Value.newBuilder().setNull(ValueNull.newBuilder().build()).build();
+      return createNull();
     }
     return supplier.get();
+  }
+
+  public Value createNull() {
+    return Value.newBuilder().setNull(ValueNull.newBuilder().build()).build();
   }
 
   protected Value createString(String string) {
@@ -254,15 +280,88 @@ public abstract class ValueFactory {
     return Value.newBuilder().setList(ValueList.newBuilder().addAllValues(listOfValues)).build();
   }
 
-  @SuppressWarnings("unchecked")
-  protected Value createList(Object obj) {
-    List<Object> list = (List<Object>) obj;
-    List<Value> listOfValues = list.stream().map(this::createValue).toList();
-    return Value.newBuilder().setList(ValueList.newBuilder().addAllValues(listOfValues)).build();
+  //  @SuppressWarnings("unchecked")
+  //  protected Value createList(Object obj) {
+  //    List<Object> list = (List<Object>) obj;
+  //    List<Value> listOfValues = list.stream().map(this::createValue).toList();
+  //    return
+  // Value.newBuilder().setList(ValueList.newBuilder().addAllValues(listOfValues)).build();
+  //  }
+
+  protected Value createAny(String json) throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode node = objectMapper.readTree(json);
+    return recurseAny(node);
   }
 
-  protected Value createAny(Object obj) {
-    return createValue(obj);
+  private Value recurseAny(JsonNode jsonNode) throws IOException {
+    return switch (jsonNode) {
+      case JsonNode node when node.isNull() -> createNull();
+      case JsonNode node when node.isTextual() -> {
+        String value = jsonNode.asText();
+        if (isDate(value)) {
+          yield createValue(new ValueTypeTuple(value, createDateType()));
+        } else if (isTime(value)) {
+          yield createValue(new ValueTypeTuple(value, createDateType()));
+        } else if (isTimestamp(value)) {
+          yield createValue(new ValueTypeTuple(value, createTimestampType()));
+        } else {
+          yield createValue(new ValueTypeTuple(value, createStringType()));
+        }
+      }
+      case JsonNode node when node.isBoolean() ->
+          createValue(new ValueTypeTuple(jsonNode.asBoolean(), createBoolType()));
+      case JsonNode node when node.isShort() ->
+          createValue(new ValueTypeTuple(jsonNode.shortValue(), createShortType()));
+      case JsonNode node when node.isInt() ->
+          createValue(new ValueTypeTuple(jsonNode.intValue(), createIntType()));
+      case JsonNode node when node.isLong() ->
+          createValue(new ValueTypeTuple(jsonNode.longValue(), createLongType()));
+      case JsonNode node when node.isFloat() ->
+          createValue(new ValueTypeTuple(jsonNode.floatValue(), createFloatType()));
+      case JsonNode node when node.isDouble() ->
+          createValue(new ValueTypeTuple(jsonNode.doubleValue(), createDoubleType()));
+      case JsonNode node when node.isBinary() ->
+          createValue(new ValueTypeTuple(jsonNode.binaryValue(), createBinaryType()));
+      case JsonNode node when node.isMissingNode() -> createNull();
+      case JsonNode node when node.isBigDecimal() ->
+          createValue(new ValueTypeTuple(jsonNode.decimalValue(), createDecimalType()));
+      case JsonNode node when node.isBigInteger() ->
+          createValue(new ValueTypeTuple(jsonNode.bigIntegerValue(), createDecimalType()));
+      case JsonNode node when node.isObject() -> {
+        ValueRecord.Builder rb = ValueRecord.newBuilder();
+        node.fields()
+            .forEachRemaining(
+                entry -> {
+                  try {
+                    rb.addFields(
+                        ValueRecordField.newBuilder()
+                            .setName(entry.getKey())
+                            .setValue(recurseAny(entry.getValue())));
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                });
+
+        yield Value.newBuilder().setRecord(rb.build()).build();
+      }
+
+      case JsonNode node when node.isArray() -> {
+        ArrayNode arrayNode = (ArrayNode) node;
+        ValueList.Builder rb = ValueList.newBuilder();
+        arrayNode.forEach(
+            jn -> {
+              try {
+                rb.addValues(recurseAny(jn));
+              } catch (IOException e) {
+                throw new DASSdkUnsupportedException("Failed to parse json node");
+              }
+            });
+        yield Value.newBuilder().setList(rb.build()).build();
+      }
+
+      default -> throw new IllegalStateException("Unexpected value: " + jsonNode);
+    };
   }
 
   protected Value createDate(String date) {
@@ -327,20 +426,6 @@ public abstract class ValueFactory {
   @SuppressWarnings("unchecked")
   protected Value createRecordWithType(Object value) {
     Map<String, ValueTypeTuple> recordMap = (Map<String, ValueTypeTuple>) value;
-    ValueRecord.Builder rb = ValueRecord.newBuilder();
-    List<String> fieldNames = new ArrayList<>(recordMap.keySet());
-    for (int i = 0; i < recordMap.size(); i++) {
-      rb.addFields(
-          ValueRecordField.newBuilder()
-              .setName(fieldNames.get(i))
-              .setValue(createValue(recordMap.get(fieldNames.get(i)))));
-    }
-    return Value.newBuilder().setRecord(rb.build()).build();
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Value createRecordWithoutType(Object obj) {
-    Map<String, Object> recordMap = (Map<String, Object>) obj;
     ValueRecord.Builder rb = ValueRecord.newBuilder();
     List<String> fieldNames = new ArrayList<>(recordMap.keySet());
     for (int i = 0; i < recordMap.size(); i++) {
