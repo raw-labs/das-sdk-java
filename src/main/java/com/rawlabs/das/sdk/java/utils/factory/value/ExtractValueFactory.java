@@ -1,5 +1,6 @@
 package com.rawlabs.das.sdk.java.utils.factory.value;
 
+import com.rawlabs.protocol.das.Row;
 import com.rawlabs.protocol.raw.Value;
 
 import java.util.ArrayList;
@@ -28,6 +29,10 @@ public abstract class ExtractValueFactory {
       case Value v when v.hasList() -> getList(v);
       default -> throw new IllegalStateException("Unexpected value: " + value);
     };
+  }
+
+  public final Object extractValue(Row row, String columnName) {
+    return extractValue(row.getDataMap().get(columnName));
   }
 
   protected Object getList(Value v) {
